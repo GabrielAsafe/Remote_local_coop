@@ -3,7 +3,7 @@ import vgamepad as vg
 import socket
 
 # Configuração do cliente
-SERVER_IP = '192.168.1.111'  # IP do servidor
+SERVER_IP = '172.31.136.198'  # IP do servidor
 PORT = 12345
 
 # Inicializa o cliente
@@ -56,7 +56,7 @@ def send_command(type: str, command):
 
     # Combina tipo e comando em uma única string
     data_to_send = f"{type},{command_str}"
-
+    print(f"Enviando comando: {data_to_send}")  # Para depuração
     client.sendall(data_to_send.encode('utf-8'))
 
 # Game loop

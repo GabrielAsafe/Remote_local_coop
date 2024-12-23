@@ -10,7 +10,6 @@ BUFFER_SIZE = 1024
 # Inicializa o pygame e o módulo joystick
 pygame.init()
 
-
 # Cria o gamepad usando o vgamepad
 gamepad = vg.VX360Gamepad()
 
@@ -55,8 +54,6 @@ def process_command(typo: str, command):
                 if button_enum:
                     gamepad.release_button(button=button_enum)
 
-        
-
     except Exception as e:
         print(f"Erro ao processar comando: {e}")
 
@@ -66,18 +63,28 @@ try:
         if not data:
             break
 
-        typo, command_str = data.decode('utf-8').split(',', 1)
-        
-        if typo == "JOYAXISMOTIONESQUERDO" or typo == "JOYAXISMOTIONDIREITO" or typo == "JOYAXISMOTIONTriggerESQUERDO" or typo == "JOYAXISMOTIONTriggerDIREITO":
-            command = dict(item.split('=') for item in command_str.split(','))
+        # Tenta dividir a string, e se houver apenas um valor, ignora o comando
+        try:
+            typo, command_str = data.decode('utf-8').split(',', 1)
+        except ValueError:
+            print(f"Comando inválido, ignorando: {data.decode('utf-8')}")
+            continue  # Ignora e vai para o próximo comando
 
+        if typo == "JOYAXISMOTIONESQUERDO" or typo == "JOYAXISMOTIONDIREITO" or typo == "JOYAXISMOTIONTriggerESQUERDO" or typo == "JOYAXISMOTIONTriggerDIREITO":
+            # Processa o comando como um dicionário, garantindo que cada item tenha o formato "key=value"
+            command = {}
+            for item in command_str.split(','):
+                if '=' in item:  # Verifica se o item tem o formato chave=valor
+                    key, value = item.split('=', 1)
+                    command[key] = value
+                else:
+                    print(f"Comando inválido (falta '=' em: {item}), ignorando esse item")
+            # Agora 'command' deve ser um dicionário válido
         else:
             command = command_str
 
-
         process_command(typo, command)
         gamepad.update()
-
 
 finally:
     gamepad.reset()
